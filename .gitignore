@@ -1,0 +1,7 @@
+venv
+*.pyc
+staticfiles
+/db.sqlite3
+.DS_Store
+*.dump
+*.json
