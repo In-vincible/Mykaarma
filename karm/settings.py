@@ -96,6 +96,7 @@ DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
 GDAL_LIBRARY_PATH = os.getenv('GDAL_LIBRARY_PATH')
 GEOS_LIBRARY_PATH = os.getenv('GEOS_LIBRARY_PATH')
 PROJ4_LIBRARY_PATH = os.getenv('PROJ4_LIBRARY_PATH')
+print(GDAL_LIBRARY_PATH,GEOS_LIBRARY_PATH)
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
 
