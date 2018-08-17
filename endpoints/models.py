@@ -32,10 +32,9 @@ class Engine(models.Model):
 
     def fill(name):
         try:
-            float(name)
-        except:
             return Engine.objects.get_or_create(name=name)
-        return (None,False)
+        except:
+            return (None,False)
 
 class Body(models.Model):
 
@@ -43,10 +42,9 @@ class Body(models.Model):
 
     def fill(name):
         try:
-            float(name)
-        except:
             return Body.objects.get_or_create(name=name)
-        return (None,False)
+        except:
+            return (None,False)
 
 
 class Color(models.Model):
@@ -117,3 +115,33 @@ class Car(models.Model):
     engine = models.ForeignKey(Engine, on_delete=models.CASCADE)
     body = models.ForeignKey(Body, on_delete=models.CASCADE)
     price = models.IntegerField() 
+
+    def fill(dic):
+        try:
+            Car.objects.get(vin = dic['VIN'])
+        except:
+            try:
+                dealer = Dealer.objects.get(dealerId=dic['DealerID'])
+                car_make = Make.objects.get(name=dic['Make'])
+                car_model = Car_Model.objects.get(name=dic['Model'], make=car_make)
+                year = Year.objects.get(name=dic['Year'])
+                transmission = Transmission.objects.get(name=dic['Transmission'])
+                color = Color.objects.get(name=dic['Color'])
+                engine = Engine.objects.get(name=dic['Engine'])
+                body = Body.objects.get(name=dic['Body'])
+                price = int(dic['PriceInINR'])
+                c =  Car(
+                            vin=dic['VIN'],
+                            dealer=dealer,
+                            car_model=car_model,
+                            year=year,
+                            transmission=transmission,
+                            color=color,
+                            engine=engine,
+                            body=body,
+                            price=price
+                        )
+                c.save()
+                return (c,True)
+            except:
+                print("Bad Data",dic)

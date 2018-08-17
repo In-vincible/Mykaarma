@@ -22,6 +22,7 @@ def create_modals(filename):
     year_no = Year.objects.all().count()
     color_no = Color.objects.all().count()
     dealer_no = Dealer.objects.all().count()
+    car_no = Car.objects.all().count()
     colors = set()
     transmission = set()
     body = set()
@@ -64,7 +65,9 @@ def create_modals(filename):
         Car_Model.fill(m,name)
     for dealer in dealers.values():
         Dealer.fill(dealer)
-    
+    for row in reader:
+        Car.fill(row)
+
     post_engine_no = Engine.objects.all().count()
     post_body_no = Body.objects.all().count()
     post_transmission_no = Transmission.objects.all().count()
@@ -73,6 +76,7 @@ def create_modals(filename):
     post_year_no = Year.objects.all().count()
     post_color_no = Color.objects.all().count()
     post_dealer_no = Dealer.objects.all().count()
+    post_car_no = Car.objects.all().count()
     print("Colors Created: ",post_color_no-color_no)
     print("Year Created: ",post_year_no-year_no)
     print("Engine Created: ",post_engine_no-engine_no)
@@ -81,17 +85,35 @@ def create_modals(filename):
     print("Car Models Created: ",post_model_no-model_no)
     print("Transmission Created: ",post_transmission_no-transmission_no)
     print("Dealers Created: ", post_dealer_no-dealer_no)
-
+    print("Cars Created: ", post_car_no-car_no)
+    
 def get_dealer(request):
 
     response = {}
     response['status'] = 0
-    if request.method == 'GET':
+    try:
         post = request.GET
-        distance = post['distance']
+        if 'distance' in post:
+            distance = post['distance']
+        else:
+            distance = 200000000
+        
         ref_location = Point(float(post['lon']),float(post['lat']))
         # dealers = Dealer.objects.filter(point__distance_lte=(ref_location, D(m=distance))).distance(ref_location).order_by('distance')
-        dealers = Dealer.objects.filter(point__distance_lte=(ref_location, D(m=distance))).annotate(distance=Distance('point', ref_location)).order_by('distance')
+        # dealers = Dealer.objects.filter(point__distance_lte=(ref_location, D(m=distance))).annotate(distance=Distance('point', ref_location)).order_by('distance')
+        dealers = Dealer.objects
+        if 'model' in post:
+            dealers = dealers.filter(car__car_model__make__name=post['model']).distinct()
+        
+
+        if 'min_price' in post:
+            dealers = dealers.filter(car__price__gte = post['min_price']).distinct()
+        
+        if 'max_price' in post:
+            dealers = dealers.filter(car__price__lte = post['max_price']).distinct()
+        # Filtering by distance
+        dealers = dealers.filter(point__distance_lte=(ref_location, D(m=distance))).annotate(distance=Distance('point', ref_location)).order_by('distance')
+        
         dealers_json = []
         for dealer in dealers:
             dealer_object = {}
@@ -105,5 +127,6 @@ def get_dealer(request):
         response['data'] = dealers_json
         response['status'] = 1
         return JsonResponse(response)
-    else:
+    except Exception as e:
+        response['error'] = str(e)
         return JsonResponse(response)
