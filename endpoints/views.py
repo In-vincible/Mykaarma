@@ -107,10 +107,15 @@ def get_dealer(request):
         
 
         if 'min_price' in post:
-            dealers = dealers.filter(car__price__gte = post['min_price']).distinct()
+            dealer_ids = Car.objects.filter(price__gte = post['min_price']).values("dealer").distinct()
+            dealer_ids = [d['dealer'] for d in dealer_ids]
+            dealers = dealers.filter(dealerId__in=dealer_ids)
+            # dealers = dealers.filter(car__price__gte = post['min_price']).distinct()
         
         if 'max_price' in post:
-            dealers = dealers.filter(car__price__lte = post['max_price']).distinct()
+            dealer_ids = Car.objects.filter(price__lte = post['max_price']).values("dealer").distinct()
+            dealer_ids = [d['dealer'] for d in dealer_ids]
+            dealers = dealers.filter(dealerId__in=dealer_ids)
         # Filtering by distance
         dealers = dealers.filter(point__distance_lte=(ref_location, D(m=distance))).annotate(distance=Distance('point', ref_location)).order_by('distance')
         
