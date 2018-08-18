@@ -146,3 +146,16 @@ class Car(models.Model):
                 return (c,True)
             except:
                 print("Bad Data",dic)
+
+class Rating(models.Model):
+
+    value = models.FloatField(default=0)
+    dealer = models.OneToOneField(Dealer, on_delete=models.CASCADE)
+    people_rated = models.IntegerField(default=0)
+
+    def fill(dic):
+        try:
+            dealer = Dealer.objects.get(dealerId=dic['dealerId'])
+            r = Rating.objects.create(value=dic['value'], dealer=dealer, people_rated=dic['people_rated'])
+        except:
+            print("Bad Data: ",dic)

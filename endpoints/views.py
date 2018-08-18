@@ -5,6 +5,7 @@ from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
 from django.http import JsonResponse
+import time
 
 def read_csv(filename):
     csv_file = open(filename)
@@ -30,6 +31,7 @@ def create_modals(filename):
     color_no = Color.objects.all().count()
     dealer_no = Dealer.objects.all().count()
     car_no = Car.objects.all().count()
+    rating_no = Rating.objects.all().count()
     colors = set()
     transmission = set()
     body = set()
@@ -52,6 +54,11 @@ def create_modals(filename):
         dealer_dic['email'] = row['DealerEmail']
         dealer_dic['lon'] = row['DealerLongitude']
         dealer_dic['lat'] = row['DealerLatitude']
+        rating_dic = {}
+        rating_dic['value'] = row['DealerAvgRatingOutOf5']
+        rating_dic['people_rated'] = row['NumberOfPeopleRated']
+        rating_dic['dealerId'] = dealer_dic['id']
+        dealer_dic['rating'] = rating_dic
         dealers[dealer_dic['id']] = dealer_dic
 
     # Automatic is in the colors column
@@ -72,6 +79,7 @@ def create_modals(filename):
         Car_Model.fill(m,name)
     for dealer in dealers.values():
         Dealer.fill(dealer)
+        Rating.fill(dealer['rating'])
     for row in reader:
         Car.fill(row)
     set_price_range()
@@ -84,6 +92,7 @@ def create_modals(filename):
     post_color_no = Color.objects.all().count()
     post_dealer_no = Dealer.objects.all().count()
     post_car_no = Car.objects.all().count()
+    post_rating_no = Rating.objects.all().count()
     print("Colors Created: ",post_color_no-color_no)
     print("Year Created: ",post_year_no-year_no)
     print("Engine Created: ",post_engine_no-engine_no)
@@ -93,6 +102,7 @@ def create_modals(filename):
     print("Transmission Created: ",post_transmission_no-transmission_no)
     print("Dealers Created: ", post_dealer_no-dealer_no)
     print("Cars Created: ", post_car_no-car_no)
+    print("Rating Created: ",post_rating_no-rating_no)
 
 
 def get_dealer(request):
@@ -100,6 +110,8 @@ def get_dealer(request):
     response = {}
     response['status'] = 0
     try:
+        start = time.time()
+        current = start
         post = request.GET
         if 'distance' in post:
             distance = post['distance']
@@ -111,16 +123,26 @@ def get_dealer(request):
         dealers = Dealer.objects
         if 'model' in post:
             dealers = dealers.filter(car__car_model__make__name=post['model']).distinct()
+            tm = time.time()
+            print("Time Taken to filter with models %f"%(tm-current))
+            current = tm
 
         if 'min_price' in post:
             dealer_ids = Car.objects.filter(price__gte = post['min_price']).values("dealer").distinct()
             dealer_ids = [d['dealer'] for d in dealer_ids]
             dealers = dealers.filter(dealerId__in=dealer_ids)
+            tm = time.time()
+            print("Time Taken to filter with min_price %f"%(tm-current))
+            current = tm
 
         if 'max_price' in post:
             dealer_ids = Car.objects.filter(price__lte = post['max_price']).values("dealer").distinct()
             dealer_ids = [d['dealer'] for d in dealer_ids]
             dealers = dealers.filter(dealerId__in=dealer_ids)
+            tm = time.time()
+            print("Time Taken to filter with max_price %f"%(tm-current))
+            current = tm
+
         # Filtering by distance
         dealers = dealers.filter(point__distance_lte=(ref_location, D(m=distance))).annotate(distance=Distance('point', ref_location)).order_by('distance')
          
@@ -128,13 +150,15 @@ def get_dealer(request):
         for dealer in dealers:
             c_m_s = Car_Model.objects.filter(car__dealer=dealer).distinct()
             makes = Make.objects.filter(car_model__in=c_m_s).distinct()
-
+            
             dealer_object = {}
             dealer_object['dealerId'] = dealer.dealerId
             dealer_object['name'] = dealer.name
             dealer_object['email'] = dealer.email
             dealer_object['lat'] = dealer.point[1]
             dealer_object['lon'] = dealer.point[0]
+            dealer_object['rating_value'] = dealer.rating.value
+            dealer_object['people_rated'] = dealer.rating.people_rated
             makes_response = []
             for make in makes:
                 make_object = {}
@@ -144,7 +168,7 @@ def get_dealer(request):
                 makes_response.append(make_object)
             dealer_object['makes'] = makes_response
             dealers_json.append(dealer_object)
-        
+        print("Time Taken in final for loop %f, Total Time %f"%(time.time()-current,time.time()-start))
         response['data'] = dealers_json
         response['status'] = 1
         return JsonResponse(response)
