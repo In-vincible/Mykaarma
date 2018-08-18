@@ -61,7 +61,8 @@ class Color(models.Model):
 class Make(models.Model):
 
     name = models.CharField(max_length=120)
-
+    min_price = models.IntegerField(default = 0)
+    max_price = models.IntegerField(default = 0)
     def fill(name):
         try:
             float(name)

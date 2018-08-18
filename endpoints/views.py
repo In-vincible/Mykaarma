@@ -11,6 +11,13 @@ def read_csv(filename):
     reader = csv.DictReader(csv_file)
     return list(reader)
 
+def set_price_range():
+    makes = Make.objects.all()
+    for make in makes:
+        cars = Car.objects.filter(car_model__make=make).order_by('price')
+        make.min_price = cars[0].price
+        make.max_price = cars[cars.count()-1].price
+        make.save()
 
 def create_modals(filename):
     reader = read_csv(filename)
@@ -67,7 +74,7 @@ def create_modals(filename):
         Dealer.fill(dealer)
     for row in reader:
         Car.fill(row)
-
+    set_price_range()
     post_engine_no = Engine.objects.all().count()
     post_body_no = Body.objects.all().count()
     post_transmission_no = Transmission.objects.all().count()
@@ -86,7 +93,8 @@ def create_modals(filename):
     print("Transmission Created: ",post_transmission_no-transmission_no)
     print("Dealers Created: ", post_dealer_no-dealer_no)
     print("Cars Created: ", post_car_no-car_no)
-    
+
+
 def get_dealer(request):
 
     response = {}
@@ -99,34 +107,42 @@ def get_dealer(request):
             distance = 200000000
         
         ref_location = Point(float(post['lon']),float(post['lat']))
-        # dealers = Dealer.objects.filter(point__distance_lte=(ref_location, D(m=distance))).distance(ref_location).order_by('distance')
-        # dealers = Dealer.objects.filter(point__distance_lte=(ref_location, D(m=distance))).annotate(distance=Distance('point', ref_location)).order_by('distance')
+
         dealers = Dealer.objects
         if 'model' in post:
             dealers = dealers.filter(car__car_model__make__name=post['model']).distinct()
-        
 
         if 'min_price' in post:
             dealer_ids = Car.objects.filter(price__gte = post['min_price']).values("dealer").distinct()
             dealer_ids = [d['dealer'] for d in dealer_ids]
             dealers = dealers.filter(dealerId__in=dealer_ids)
-            # dealers = dealers.filter(car__price__gte = post['min_price']).distinct()
-        
+
         if 'max_price' in post:
             dealer_ids = Car.objects.filter(price__lte = post['max_price']).values("dealer").distinct()
             dealer_ids = [d['dealer'] for d in dealer_ids]
             dealers = dealers.filter(dealerId__in=dealer_ids)
         # Filtering by distance
         dealers = dealers.filter(point__distance_lte=(ref_location, D(m=distance))).annotate(distance=Distance('point', ref_location)).order_by('distance')
-        
+         
         dealers_json = []
         for dealer in dealers:
+            c_m_s = Car_Model.objects.filter(car__dealer=dealer).distinct()
+            makes = Make.objects.filter(car_model__in=c_m_s).distinct()
+
             dealer_object = {}
             dealer_object['dealerId'] = dealer.dealerId
             dealer_object['name'] = dealer.name
             dealer_object['email'] = dealer.email
             dealer_object['lat'] = dealer.point[1]
             dealer_object['lon'] = dealer.point[0]
+            makes_response = []
+            for make in makes:
+                make_object = {}
+                make_object['name'] = make.name
+                make_object['min_price'] = make.min_price
+                make_object['max_price'] = make.max_price
+                makes_response.append(make_object)
+            dealer_object['makes'] = makes_response
             dealers_json.append(dealer_object)
         
         response['data'] = dealers_json
