@@ -180,6 +180,7 @@ def get_dealer(request):
         response['error'] = str(e)
         return JsonResponse(response)
 
+
 def sign_in(request):
     if request.POST:
         cred = request.POST
@@ -212,3 +213,7 @@ def sign_up(request):
 def products_view(request):
     user = request.user
     return render(request, 'products.html', {user : user})
+
+def index(request):
+    return render(request,'products.html')
+

@@ -7,7 +7,9 @@ from .views import *
 app_name='endpoints'
 
 urlpatterns = [
+	url(r'^', index, name='index'),
 	url(r'^location/$', get_dealer, name= 'location'),
 	url(r'^login/', sign_in, name='signIn'),
 	url(r'^signup/', sign_up, name='signup')
+
 ]
