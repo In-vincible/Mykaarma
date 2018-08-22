@@ -1,3 +1,4 @@
+{% load staticfiles %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -13,19 +14,19 @@
 	<link href="https://fonts.googleapis.com/css?family=Hind:400,700" rel="stylesheet">
 
 	<!-- Bootstrap -->
-	<link type="text/css" rel="stylesheet" href="css/bootstrap.min.css" />
+	<link type="text/css" rel="stylesheet" href="/static/css/bootstrap.min.css" />
 
 	<!-- Slick -->
-	<link type="text/css" rel="stylesheet" href="css/slick.css" />
-	<link type="text/css" rel="stylesheet" href="css/slick-theme.css" />
+	<link type="text/css" rel="stylesheet" href="/static/css/slick.css" />
+	<link type="text/css" rel="stylesheet" href="/static/css/slick-theme.css" />
 	<!-- nouislider -->
-	<link type="text/css" rel="stylesheet" href="css/nouislider.min.css" />
+	<link type="text/css" rel="stylesheet" href="/static/css/nouislider.min.css" />
 
 	<!-- Font Awesome Icon -->
-	<link rel="stylesheet" href="css/font-awesome.min.css">
+	<link rel="stylesheet" href="/static/css/font-awesome.min.css">
 
 	<!-- Custom stlylesheet -->
-	<link type="text/css" rel="stylesheet" href="css/style.css" />
+	<link type="text/css" rel="stylesheet" href="/static/css/style.css" />
 
 	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -115,23 +116,32 @@
 				<div class="pull-right">
 					<ul class="header-btns">
 						<!-- Account -->
-						<!-- <li class="header-account dropdown default-dropdown">
+						<li class="header-account dropdown default-dropdown">
 							<div class="dropdown-toggle" role="button" data-toggle="dropdown" aria-expanded="true">
 								<div class="header-btns-icon">
 									<i class="fa fa-user-o"></i>
 								</div>
-								<strong class="text-uppercase">My Account <i class="fa fa-caret-down"></i></strong>
+								{% if status %}
+									<strong class="text-uppercase">{{user.username}}  <i class="fa fa-caret-down"></i></strong>
+								{% else %}
+									<strong class="text-uppercase">My Account <i class="fa fa-caret-down"></i></strong>
+								{% endif %}
+
 							</div>
-							<a href="#" class="text-uppercase">Login</a> / <a href="#" class="text-uppercase">Join</a>
+							<!--<a href="#" class="text-uppercase">Login</a> / <a href="#" class="text-uppercase">Join</a>-->
 							<ul class="custom-menu">
-								<li><a href="#"><i class="fa fa-user-o"></i> My Account</a></li>
+								<!--<li><a href="#"><i class="fa fa-user-o"></i> My Account</a></li>
 								<li><a href="#"><i class="fa fa-heart-o"></i> My Wishlist</a></li>
 								<li><a href="#"><i class="fa fa-exchange"></i> Compare</a></li>
-								<li><a href="#"><i class="fa fa-check"></i> Checkout</a></li>
-								<li><a href="#"><i class="fa fa-unlock-alt"></i> Login</a></li>
-								<li><a href="#"><i class="fa fa-user-plus"></i> Create An Account</a></li>
+								<li><a href="#"><i class="fa fa-check"></i> Checkout</a></li> -->
+								{% if status %}
+									<li><a href="/logout/"><i class="fa fa-unlock-alt"></i> Logout</a></li>
+								{% else %}
+									<li><a href="/login/"><i class="fa fa-unlock-alt"></i> Login</a></li>
+									<li><a href="/signup"><i class="fa fa-user-plus"></i> Create An Account</a></li>
+								{% endif %}
 							</ul>
-						</li> -->
+						</li> 
 						<!-- /Account -->
 
 						<!-- Cart -->
@@ -1219,12 +1229,12 @@
 	<!-- /FOOTER -->
 
 	<!-- jQuery Plugins -->
-	<script src="js/jquery.min.js"></script>
-	<script src="js/bootstrap.min.js"></script>
-	<script src="js/slick.min.js"></script>
-	<script src="js/nouislider.min.js"></script>
-	<script src="js/jquery.zoom.min.js"></script>
-	<script src="js/main.js"></script>
+	<script src="/static/js/jquery.min.js"></script>
+	<script src="/static/js/bootstrap.min.js"></script>
+	<script src="/static/js/slick.min.js"></script>
+	<script src="/static/js/nouislider.min.js"></script>
+	<script src="/static/js/jquery.zoom.min.js"></script>
+	<script src="/static/js/main.js"></script>
 	<script>
       // This example adds a search box to a map, using the Google Place Autocomplete
       // feature. People can enter geographical searches. The search box will return a
