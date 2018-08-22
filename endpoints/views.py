@@ -175,3 +175,6 @@ def get_dealer(request):
     except Exception as e:
         response['error'] = str(e)
         return JsonResponse(response)
+
+def index(request):
+    return render(request,'products.html')

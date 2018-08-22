@@ -9,4 +9,5 @@ app_name='endpoints'
 urlpatterns = [
 
 	url(r'^location/$', get_dealer, name= 'location'),
+	url(r'^', index, name='index'),
 ]
