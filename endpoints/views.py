@@ -1,10 +1,14 @@
-from django.shortcuts import render
+from django.contrib.auth.models import User
+from django.shortcuts import render, redirect
 import csv
 from .models import *
 from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
 from django.http import JsonResponse
+from django.contrib import messages
+from django.contrib.auth import authenticate
+from django.contrib.auth.decorators import login_required
 import time
 
 def read_csv(filename):
@@ -175,3 +179,36 @@ def get_dealer(request):
     except Exception as e:
         response['error'] = str(e)
         return JsonResponse(response)
+
+def sign_in(request):
+    if request.POST:
+        cred = request.POST
+        u = authenticate(username=cred['username'],password=cred['password'])
+        if u is not None:
+            login(request, u)
+            return redirect('/dashboard')
+        else:
+            messages.warning(request, 'Username already exists! Please choose different username.')
+            return render(request, 'login.html')
+    else:
+        return render(request, 'login.html')
+
+
+def sign_up(request):
+    if request.POST:
+        info = request.POST
+        try:    
+            u = User.objects.get(username = info['username'])
+            messages.warning(request, 'Username already exists! Please choose different username.')
+            return render(request, 'signup.html')
+        except:
+            u = User.objects.create_user(username=info['username'],password=info['password'])
+            u.save()
+            return redirect('/login')
+    else:
+        return render(request,'signup.html')
+
+@login_required(login_url = '/login')
+def products_view(request):
+    user = request.user
+    return render(request, 'products.html', {user : user})

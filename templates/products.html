@@ -18,7 +18,6 @@
 	<!-- Slick -->
 	<link type="text/css" rel="stylesheet" href="css/slick.css" />
 	<link type="text/css" rel="stylesheet" href="css/slick-theme.css" />
-
 	<!-- nouislider -->
 	<link type="text/css" rel="stylesheet" href="css/nouislider.min.css" />
 
@@ -1304,17 +1303,21 @@
 		$("#main-content").css({display:"block"});
 		$("#products").html('');
 		for (var i=0;i<dealers.length; i++){
+			var rating = dealers[i]["rating_value"];
+			//console.log(rating);
+			var decimal = rating-Math.floor(rating);
+			var htmlForRating = '';
+			for (var j=0; j<Math.floor(rating); j++) htmlForRating += '<i class="fa fa-star"></i>';
+			if(decimal>0.25&&decimal<0.75) { 
+				//rating = Math.floor(rating)+0.5;
+			  	htmlForRating += '<i class="fa fa-star-half"></i>';
+			}
+			//for (var j=0; j<5-Math.ceil(rating); j++) htmlForRating += '<i class="fa fa-star-o empty"></i>';
 			$("#products").append(`<div class="col-md-4 col-sm-6 col-xs-6 ">
 									<div class="x_panel product product-single">
 										<div class="product-body">
 											<h3 class="product-price">$32.50 <del class="product-old-price">$45.00</del></h3>
-											<div class="product-rating">
-												<i class="fa fa-star"></i>
-												<i class="fa fa-star"></i>
-												<i class="fa fa-star"></i>
-												<i class="fa fa-star"></i>
-												<i class="fa fa-star-o empty"></i>
-											</div>
+											<div class="product-rating">`+htmlForRating+`</div>
 											<h2 class="product-name"><a href="#">`+ dealers[i]['name'] +`</a></h2>
 											<div class="product-btns">
 												<button class="main-btn icon-btn"><i class="fa fa-heart"></i></button>
