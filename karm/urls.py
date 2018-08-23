@@ -18,6 +18,7 @@ from django.contrib.gis import admin
 from django.urls import path
 from django.conf.urls import url, include
 from django.conf import settings
+from django.contrib.auth import views as auth_views
 from django.contrib.staticfiles.urls import static, staticfiles_urlpatterns
 
 

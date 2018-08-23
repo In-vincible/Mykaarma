@@ -1,10 +1,14 @@
-from django.shortcuts import render
+from django.contrib.auth.models import User
+from django.shortcuts import render, redirect
 import csv
 from .models import *
 from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
 from django.http import JsonResponse
+from django.contrib import messages
+from django.contrib.auth import authenticate, logout, login
+from django.contrib.auth.decorators import login_required
 import time
 
 def read_csv(filename):
@@ -177,5 +181,47 @@ def get_dealer(request):
         response['error'] = str(e)
         return JsonResponse(response)
 
+
+def sign_in(request):
+    if request.POST:
+        print(1)
+        cred = request.POST
+        u = authenticate(username=cred['username'],password=cred['password'])
+        if u is not None:
+            login(request, u)
+            return redirect('/')
+        else:
+            messages.warning(request, 'username or password dont match.')
+            return render(request, 'login.html')
+    else:
+        print(2)
+        return render(request, 'login.html')
+
+
+def sign_up(request):
+    if request.POST:
+        info = request.POST
+        try:    
+            u = User.objects.get(username = info['username'])
+            messages.warning(request, 'Username already exists! Please choose different username.')
+            return render(request, 'signup.html')
+        except:
+            u = User.objects.create_user(username=info['username'],password=info['password'])
+            u.save()
+            return redirect('/login/')
+    else:
+        return render(request,'signup.html')
+
 def index(request):
-    return render(request,'products.html')
+    if request.user.is_authenticated:
+        user = request.user
+        return render(request, 'products.html', {'user' : user, 'status' : True})
+    else:
+        return render(request, 'products.html', {'status' : False})
+
+@login_required(login_url='/login/')
+def sign_out(request):
+    logout(request)
+    return redirect('/')
+
+
