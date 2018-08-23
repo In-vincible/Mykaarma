@@ -802,6 +802,34 @@
 					<div id="store">
 						<!-- row -->
 						<div class="row" id="products">
+							<div class="modal fade" id="emailModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+							  <div class="modal-dialog" role="document">
+							    <div class="modal-content">
+							      <div class="modal-header">
+							        <h5 class="modal-title" id="emailModalLabel">New message</h5>
+							        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							          <span aria-hidden="true">&times;</span>
+							        </button>
+							      </div>
+							      <div class="modal-body">
+							        <form>
+							          <div class="form-group">
+							            <label for="recipient-name" class="col-form-label">Recipient:</label>
+							            <input type="text" class="form-control" id="recipient-name">
+							          </div>
+							          <div class="form-group">
+							            <label for="message-text" class="col-form-label">Message:</label>
+							            <textarea class="form-control" id="message-text"></textarea>
+							          </div>
+							        </form>
+							      </div>
+							      <div class="modal-footer">
+							        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							        <button type="button" class="btn btn-primary">Send mail</button>
+							      </div>
+							    </div>
+							  </div>
+							</div>
 							<!-- Product Single -->
 							<!-- <div class="col-md-4 col-sm-6 col-xs-6">
 								<div class="product product-single">
@@ -1236,13 +1264,6 @@
 	<script src="/static/js/jquery.zoom.min.js"></script>
 	<script src="/static/js/main.js"></script>
 	<script>
-      // This example adds a search box to a map, using the Google Place Autocomplete
-      // feature. People can enter geographical searches. The search box will return a
-      // pick list containing a mix of places and predicted search terms.
-
-      // This example requires the Places library. Include the libraries=places
-      // parameter when you first load the API. For example:
-      // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
      var markers = [];
      var locationLat;
      var locationLng;
@@ -1255,7 +1276,7 @@
     function theAjax(){
     	var uri1 = "https://mykaarma.herokuapp.com/location/";
     	var uri2 = "https://ec3ab562.ngrok.io/location/";
-		uri2 = "http//localhost:8001/location/"
+		uri2 = "http://127.0.0.1:8000/location/";
     	var data = {
       		"lon" : addressLng,
       		"lat" : addressLat,
@@ -1331,7 +1352,7 @@
 											<div class="product-rating">`+htmlForRating+`</div>
 											<h2 class="product-name"><a href="#">`+ dealers[i]['name'] +`</a></h2>
 											<div class="product-btns">
-												<button class="main-btn icon-btn"><i class="fa fa-heart"></i></button>
+												<button class="main-btn icon-btn" data-email="`+dealers[i]['email']+`"><i class="fa fa-envelope"></i></button>
 												<button class="main-btn icon-btn"><i class="fa fa-exchange"></i></button>
 												<button class="primary-btn add-to-cart"><i class="fa fa-shopping-cart"></i> Add to Cart</button>
 											</div>
@@ -1340,6 +1361,15 @@
 								</div>`)
 		}
 	}
+	$('#emailModal').on('show.bs.modal', function (event) {
+	  var button = $(event.relatedTarget) // Button that triggered the modal
+	  var recipient = button.data('email') // Extract info from data-* attributes
+	  // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+	  // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+	  var modal = $(this)
+	  modal.find('.modal-title').text('New message to ' + recipient)
+	  modal.find('.modal-body input').val(recipient)
+	})
     function initMap() {
         map = new google.maps.Map(document.getElementById('map'), 
         	{center: {lat: -33.8688, lng: 151.2195},zoom: 13,mapTypeId: 'roadmap'});
@@ -1370,12 +1400,7 @@
           if (place.geometry.viewport) {
           	addressLat=place.geometry.location.lat();
           	addressLng=place.geometry.location.lng();
-          	var data = {
-          		"lon" : addressLng,
-          		"lat" : addressLat,
-          		"distance" : distance
-          	};
-          	mark(data);
+          	mark();
             map.fitBounds(place.geometry.viewport);
           } else {
             map.setCenter(place.geometry.location);

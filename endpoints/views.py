@@ -205,7 +205,7 @@ def sign_up(request):
             messages.warning(request, 'Username already exists! Please choose different username.')
             return render(request, 'signup.html')
         except:
-            u = User.objects.create_user(username=info['username'],password=info['password'])
+            u = User.objects.create_user(username=info['username'],password=info['password'],email=info['email'])
             u.save()
             return redirect('/login/')
     else:
