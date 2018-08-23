@@ -11,5 +11,7 @@ urlpatterns = [
 	url(r'^login/', sign_in, name='signIn'),
 	url(r'^signup/', sign_up, name='signup'),
 	url(r'^logout/', sign_out, name = 'logout'),
+	url(r'^search/$', search_car, name='search'),
+	url(r'^history/$', past_searches, name='history'),
 	url(r'^', index, name='index')
 ]

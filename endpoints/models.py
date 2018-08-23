@@ -1,6 +1,9 @@
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import Point
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+
 
 class Dealer(models.Model):
     
@@ -74,7 +77,6 @@ class Car_Model(models.Model):
 
     make = models.ForeignKey(Make, on_delete=models.CASCADE)
     name = models.CharField(max_length=120)
-
     def fill(make, name):
         try:
             m = Make.objects.get(name=make)
@@ -165,5 +167,8 @@ class Visits(models.Model):
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
 
 class Searches(models.Model):
-    car = models.ForeignKey(Car_Model, on_delete=models.CASCADE)
-    visit = models.ForeignKey(Visits, on_delete=models.CASCADE)    
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True)
+    object_id = models.CharField(max_length=300, null=True)
+    content_object = GenericForeignKey('content_type', 'object_id')
+    visit = models.ForeignKey(Visits, on_delete=models.CASCADE)
+    time = models.DateTimeField(auto_now = True, null=True) 
