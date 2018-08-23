@@ -38,8 +38,11 @@ pip freeze #to check the installed modules
 ```
 export DATABASE_URL=postgis://<username>:<password>@localhost/<db_name>
 ```
-## Migrate and Run:
+## Migrate, insert data(from csv) inside databse, Run:
 ```
-python manage.py migrate
-python manage.py runserver
+$ python manage.py migrate
+$ python manage.py shell
+> from endpoints.views import *
+> create_modals("<path_of_file_relative_to_project_directory>")
+$ python manage.py runserver
 ```
