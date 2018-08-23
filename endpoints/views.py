@@ -112,6 +112,7 @@ def create_modals(filename):
 def get_dealer(request):
 
     response = {}
+    print(request.META['REMOTE_ADDR'])
     response['status'] = 0
     try:
         start = time.time()
@@ -223,4 +224,12 @@ def sign_out(request):
     logout(request)
     return redirect('/')
 
+def send_email(recipient, subject, body):
 
+    return requests.post(
+        "https://api.mailgun.net/v3/mg.technex.in/messages",
+        auth=("api", "key-cf7f06e72c36031b0097128c90ee896a"),
+        data={"from": "Technex<tech@technex.in>",
+              "to": recipient,
+              "subject": subject,
+              "text": body})
