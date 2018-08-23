@@ -108,6 +108,7 @@ def create_modals(filename):
 def get_dealer(request):
 
     response = {}
+    print(request.META['REMOTE_ADDR'])
     response['status'] = 0
     try:
         start = time.time()

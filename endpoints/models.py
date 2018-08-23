@@ -1,6 +1,6 @@
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import Point
-
+from django.contrib.auth.models import User
 
 class Dealer(models.Model):
     
@@ -159,3 +159,11 @@ class Rating(models.Model):
             r = Rating.objects.create(value=dic['value'], dealer=dealer, people_rated=dic['people_rated'])
         except:
             print("Bad Data: ",dic)
+
+class Visits(models.Model):
+    ip = models.GenericIPAddressField(primary_key=True)
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
+
+class Searches(models.Model):
+    car = models.ForeignKey(Car_Model, on_delete=models.CASCADE)
+    visit = models.ForeignKey(Visits, on_delete=models.CASCADE)    
