@@ -23,8 +23,8 @@ source karm/bin/activate
 
 ### Create virtualenv using virtualenvwrapper
 ```
-mkvirtualenv hourblog --python=python3.6
-workon hourblog 
+mkvirtualenv karm --python=python3.6
+workon karm
 ```
 
 ## Installing Dependecies:
