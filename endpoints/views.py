@@ -6,9 +6,12 @@ from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
 from django.http import JsonResponse
+import json
 from django.contrib import messages
 from django.contrib.auth import authenticate, logout, login
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+import requests
 import time
 
 def read_csv(filename):
@@ -212,6 +215,20 @@ def sign_up(request):
     else:
         return render(request,'signup.html')
 
+@csrf_exempt
+def reset_pass(request):
+    if request.POST:  
+        u = authenticate(username=request.POST['username'],password=request.POST['old_password'])
+        if u is not None:
+            u.set_password(request.POST['new_password'])
+            u.save()
+            return redirect('/login/')
+        else:
+            messages.warning(request, 'Please enter correct old password!')
+            return render(request, 'reset_pass.html')
+    else:
+        return render(request,'reset_pass.html')
+
 def index(request):
     if request.user.is_authenticated:
         user = request.user
@@ -224,12 +241,17 @@ def sign_out(request):
     logout(request)
     return redirect('/')
 
-def send_email(recipient, subject, body):
-
-    return requests.post(
-        "https://api.mailgun.net/v3/mg.technex.in/messages",
-        auth=("api", "key-cf7f06e72c36031b0097128c90ee896a"),
-        data={"from": "Technex<tech@technex.in>",
-              "to": recipient,
-              "subject": subject,
-              "text": body})
+@csrf_exempt
+def send_email(request):
+    r =  requests.post(
+    "https://api.mailgun.net/v3/mg.technex.in/messages",
+    auth=("api", "key-cf7f06e72c36031b0097128c90ee896a"),
+    data={"from": "Mykaarma<mykaarma@appathon.in>",
+          "to": request.POST['recipient'],
+          "subject": "mail from customer",
+          "text": request.POST['body']})
+    r = r.json()
+    return JsonResponse(r)
+    # response = r.json()
+    # print(response)
+    #return r

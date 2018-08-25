@@ -40,9 +40,13 @@
               </div>
               <div>
                 <button class="btn btn-default submit" type="submit">Log in</button>
-                <a class="reset_pass" href="#">Lost your password?</a>
+                <a class="reset_pass" href="/passChange/">Lost your password?</a>
               </div>
-
+              {% if messages %}
+                {% for msg in messages %}
+                  <p>{{ msg.message }}</p>
+                {% endfor %}
+              {% endif %}
               <div class="clearfix"></div>
 
               <div class="separator">

@@ -10,6 +10,8 @@ urlpatterns = [
 	url(r'^location/$', get_dealer, name= 'location'),
 	url(r'^login/', sign_in, name='signIn'),
 	url(r'^signup/', sign_up, name='signup'),
+	url(r'^passChange/', reset_pass, name='password reset'),
 	url(r'^logout/', sign_out, name = 'logout'),
+	url(r'^mail/', send_email, name = 'mail'),
 	url(r'^', index, name='index')
 ]
