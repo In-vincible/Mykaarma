@@ -13,6 +13,8 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 import requests
 import time
+from django.utils import timezone
+from datetime import datetime
 
 def read_csv(filename):
     csv_file = open(filename)
@@ -241,6 +243,7 @@ def sign_out(request):
     logout(request)
     return redirect('/')
 
+
 @csrf_exempt
 def send_email(request):
     r =  requests.post(
@@ -255,3 +258,129 @@ def send_email(request):
     # response = r.json()
     # print(response)
     #return r
+
+def search_car(request):
+    response = {}
+    response['status'] = 0
+    if request.GET:
+        info = request.GET
+        param = info['type']
+        results = None
+        ip = request.META['REMOTE_ADDR']
+        car_array = []
+        
+        if param == 'make':
+            results = Make.objects.filter(name__icontains=info['value'])
+            
+            for result in results:
+                
+                car_object = {}
+                car_object['Make'] = result.name
+                dealers = Dealer.objects.filter(car__car_model__make=result).distinct()
+                dealer_array  = []
+                
+                for dealer in dealers:
+                    dealer_object = {}
+                    dealer_object['dealerId'] = dealer.dealerId
+                    dealer_object['name'] = dealer.name
+                    dealer_object['email'] = dealer.email
+                    dealer_object['lat'] = dealer.point[1]
+                    dealer_object['lon'] = dealer.point[0]
+                    dealer_object['rating_value'] = dealer.rating.value
+                    dealer_object['people_rated'] = dealer.rating.people_rated
+                    dealer_array.append(dealer_object)
+                
+                car_object['dealers'] = dealer_array
+                car_array.append(car_object)
+        
+        elif param == 'model':
+            results = Car_Model.objects.filter(name__icontains=info['value'])
+            
+            for result in results:
+                car_object = {}
+                car_object['Model'] = result.name
+                dealers = Dealer.objects.filter(car__car_model=result).distinct()
+                dealer_array  = []
+                
+                for dealer in dealers:
+                    dealer_object = {}
+                    dealer_object['dealerId'] = dealer.dealerId
+                    dealer_object['name'] = dealer.name
+                    dealer_object['email'] = dealer.email
+                    dealer_object['lat'] = dealer.point[1]
+                    dealer_object['lon'] = dealer.point[0]
+                    dealer_object['rating_value'] = dealer.rating.value
+                    dealer_object['people_rated'] = dealer.rating.people_rated
+                    dealer_array.append(dealer_object)
+                car_object['dealers'] = dealer_array
+                car_array.append(car_object)
+        
+        response['data'] = car_array
+        
+        visit = None
+        try:
+            visit = Visits.objects.get(ip=ip)
+            if request.user.is_authenticated:
+                visit.user = request.user
+                visit.save()
+        except:
+            visit = Visits(ip=ip)
+            if request.user.is_authenticated:
+                visit.user = request.user
+            visit.save()
+        
+        for car in results:    
+            search = Searches.objects.create(content_object=car, visit=visit)
+        
+        response['status'] = 1
+    else:
+        response['status'] = 0
+        response['message'] = "Invalid Request."
+    
+    return JsonResponse(response)
+
+
+def past_searches(request):
+    response = {}
+    response['status'] = 0
+    print("reached")
+    if request.method == 'GET':
+        info = request.GET
+        ip = request.META['REMOTE_ADDR']
+        start = info.get('start', "2018-01-01")
+        end = info.get('end', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        print(start,end)
+        searches = []
+        if 1:# try:
+            if request.user.is_authenticated:
+                searches = Searches.objects.filter(time__range=[start,end], visit__user=request.user) 
+            else:
+                searches = Searches.objects.filter(time__range=[start,end], visit__ip=ip)
+        else:# except:
+            response['message'] = "Invlid date format"
+            return JsonResponse(response)
+        results_array=[]
+        for search in searches:
+            result_object = {}
+            result_object['type'] = search.content_type.model
+            result_object['name'] = search.content_object.name
+            result_object['time'] = search.time.strftime("%Y-%m-%d %H:%M")
+            results_array.append(result_object)
+        response['data'] = results_array
+        response['status'] = 1
+    else:
+        response['status'] = 0
+        response['message'] = "Invalid Request."
+    
+    return JsonResponse(response)
+
+def send_email(recipient, subject, body):
+
+    return requests.post(
+        "https://api.mailgun.net/v3/mg.technex.in/messages",
+        auth=("api", "key-cf7f06e72c36031b0097128c90ee896a"),
+        data={"from": "Technex<tech@technex.in>",
+              "to": recipient,
+              "subject": subject,
+              "text": body})
+

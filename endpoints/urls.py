@@ -13,5 +13,7 @@ urlpatterns = [
 	url(r'^passChange/', reset_pass, name='password reset'),
 	url(r'^logout/', sign_out, name = 'logout'),
 	url(r'^mail/', send_email, name = 'mail'),
+	url(r'^search/$', search_car, name='search'),
+	url(r'^history/$', past_searches, name='history'),
 	url(r'^', index, name='index')
 ]
