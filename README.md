@@ -46,3 +46,13 @@ $ python manage.py shell
 > create_modals("<path_of_file_relative_to_project_directory>")
 $ python manage.py runserver
 ```
+## Instructions for accessing admin portal:
+### creating admin user/pass
+```
+$ python manage.py createsuperuser
+```
+### Admin Url
+```
+GET /admin
+```
+example url: 127.0.0.1:8000/admin/
