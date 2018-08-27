@@ -243,7 +243,6 @@ def sign_out(request):
     logout(request)
     return redirect('/')
 
-
 @csrf_exempt
 def send_email(request):
     r =  requests.post(
@@ -255,9 +254,6 @@ def send_email(request):
           "text": request.POST['body']})
     r = r.json()
     return JsonResponse(r)
-    # response = r.json()
-    # print(response)
-    #return r
 
 def search_car(request):
     response = {}
@@ -373,14 +369,4 @@ def past_searches(request):
         response['message'] = "Invalid Request."
     
     return JsonResponse(response)
-
-def send_email(recipient, subject, body):
-
-    return requests.post(
-        "https://api.mailgun.net/v3/mg.technex.in/messages",
-        auth=("api", "key-cf7f06e72c36031b0097128c90ee896a"),
-        data={"from": "Technex<tech@technex.in>",
-              "to": recipient,
-              "subject": subject,
-              "text": body})
 
