@@ -83,18 +83,11 @@ WSGI_APPLICATION = 'karm.wsgi.application'
 
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'mykaarma',
-        'PASSWORD': 'olaolaola'
-    }
-}
 
 APP_NAME = "mykaarma"
-# db_from_env = dj_database_url.config(conn_max_age=500, default='postgis://localhost:5432/{}'.format(APP_NAME))
-# DATABASES['default'].update(db_from_env)
-# DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
+db_from_env = dj_database_url.config(conn_max_age=500, default='postgis://localhost:5432/{}'.format(APP_NAME))
+DATABASES['default'].update(db_from_env)
+DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
 # print(DATABASES)
 
 # Password validation
