@@ -5,6 +5,7 @@
   - [GET /dealers](#get_dealers)
   - [GET /cars](#search_car)
   - [GET /history](#past_searches)
+  - [POST /mail ](#post_mail)
 
 ### GET /dealers
 
@@ -100,5 +101,22 @@ Response Body:
             "time": "2018-08-23 00:00"
         }
     ]
+}
+```
+
+### POST /mail
+
+Example Url: http://127.0.0.1:8000/mail/
+
+| Arguments | Required/Optional            | Description       |
+| ----------- | --------------- | --------- | 
+| recipient     | **Required**          | Email of Receiver      | 
+| body       | **Required** | Body of the Mail |
+
+Response Example:
+
+```
+{
+    "message": "Queued. Thank you."
 }
 ```
