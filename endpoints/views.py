@@ -266,7 +266,7 @@ def search_car(request):
         car_array = []
         
         if param == 'make':
-            results = Make.objects.filter(name__icontains=info['value'])
+            results = Make.objects.filter(name__icontains=info['value']).distinct()
             
             for result in results:
                 
@@ -290,7 +290,7 @@ def search_car(request):
                 car_array.append(car_object)
         
         elif param == 'model':
-            results = Car_Model.objects.filter(name__icontains=info['value'])
+            results = Car_Model.objects.filter(name__icontains=info['value']).distinct()
             
             for result in results:
                 car_object = {}
