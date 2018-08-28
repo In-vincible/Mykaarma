@@ -43,7 +43,7 @@ export DATABASE_URL=postgis://<username>:<password>@localhost/<db_name>
 $ python manage.py migrate
 $ python manage.py shell
 > from endpoints.views import *
-> create_modals("<path_of_file_relative_to_project_directory>")
+> create_modals("<path_of_file_relative_to_project_directory>") # This step may take 15-20 mins
 $ python manage.py runserver
 ```
 ## Instructions for accessing admin portal:
