@@ -3,6 +3,7 @@
 * Runtime: Python 3.6
 * Database: PostgreSQL
 * Database Extention: PostGIS(for saving/searching spatial data efficiently) 
+* Setting Up GDAL/GEOS (https://docs.djangoproject.com/en/2.1/ref/contrib/gis/install/geolibs/)
 ## Setting up PostGIS
 ```
 $ createdb  <db name>
